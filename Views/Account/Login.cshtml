@@ -1,0 +1,237 @@
+﻿@* подключение jquery библиотек *@
+<script src="~/scripts/jquery-3.4.1.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<script src="~/Scripts/bootstrap.min.js"></script>
+<style>
+    body {
+        margin: 200px;
+    }
+    /* Form Style */
+    .form-horizontal {
+        background: #fff;
+        padding-bottom: 40px;
+        border-radius: 15px;
+        text-align: center;
+    }
+
+        .form-horizontal .heading {
+            display: block;
+            font-size: 35px;
+            font-weight: 700;
+            padding: 150px 0;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 30px;
+        }
+
+        .form-horizontal .form-group {
+            padding: 0 40px;
+            margin: 0 0 25px 0;
+            position: relative;
+        }
+
+        .form-horizontal .form-control {
+            background: #f0f0f0;
+            border: none;
+            border-radius: 20px;
+            box-shadow: none;
+            padding: 0 20px 0 45px;
+            height: 40px;
+            transition: all 0.3s ease 0s;
+        }
+
+            .form-horizontal .form-control:focus {
+                background: #e0e0e0;
+                box-shadow: none;
+                outline: 0 none;
+            }
+
+        .form-horizontal .form-group {
+            position: absolute;
+            top: 15px;
+            left: 60px;
+            font-size: 17px;
+            color: #c8c8c8;
+            transition: all 0.5s ease 0s;
+        }
+
+        .form-horizontal .form-control:focus {
+            color: #00b4ef;
+        }
+
+        .form-horizontal .text {
+            float: left;
+            margin-left: 7px;
+            line-height: 20px;
+            padding-top: 5px;
+            text-transform: capitalize;
+        }
+
+        .form-horizontal .btn {
+            float: right;
+            font-size: 14px;
+            color: #fff;
+            background: #00b4ef;
+            border-radius: 30px;
+            padding: 10px 25px;
+            border: none;
+            text-transform: capitalize;
+            transition: all 0.5s ease 0s;
+        }
+
+    .form-group {
+        width: 65%;
+    }
+</style>
+
+
+
+@model GrassForLess.Models.User
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Вход на сайт</title>
+</head>
+<body>
+    <div class="container">
+        <!-- модальное окно -->
+        <div id="ModalBox" class="modal fade">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <!-- Заголовок модального окна -->
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                        <h4 class="modal-title">Переход на другую страницу</h4>
+                    </div>
+                    <!-- Основное содержимое модального окна -->
+                    <div class="modal-body">
+                        При переходе введенные данные будут потеряны!
+                    </div>
+                    <!-- Футер модального окна -->
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Вернуться</button>
+                        <a href="~/Account/Register" class="btn btn-default" id="RegisterModal">Перейти на страницу регистрации</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-offset-3 col-md-6">
+                @using (Html.BeginForm(null, null, FormMethod.Post, new { @id = "signupform" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "form-horizontal" })
+                    <span class="heading">Авторизация</span>
+                    <div class="form-group">
+                        @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", @placeholder = "E-mail", @id = "email" } })
+                        @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+                        <p id="validEmail"><p>
+                    </div>
+                    <div class="form-group">
+                        @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control", @placeholder = "Password", @type = "password", @id = "password" } })
+                        @Html.ValidationMessageFor(model => model.Password, "", new { @class = "text-danger" })
+                    </div>
+
+
+                    <div class="form-group">
+                        <input type="submit" value="Вход" class="btn btn-default" id="Login" />
+                        <a class="btn btn-default" id="Register">Регистрация</a>
+                        <p id="validUser"><p>
+                    </div>
+
+                }
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function () {
+            //отображение модального окна
+            function show() {
+                $("#ModalBox").modal('show');
+            };
+
+            //эвент на нажатие кнопки регистрация
+            $("#Register").click(function () {
+                // проверка, что значения ввеедены
+                if (document.getElementById("password").value != '' || document.getElementById("email").value != '') {
+                    //показ модельного окна
+                    show();
+                }
+                //если поля пустые то редиректим на страницу регистрации
+                else {
+                    window.location.href = "Register";
+                }
+
+            });
+
+            // проверка email на валидность
+            $('#email').blur(function () {
+                if ($(this).val() != '') {
+                    var pattern = /^([a-z0-9_\.-])+@@[a-z0-9-]+\.([a-z]{2,4}\.)?[a-z]{2,4}$/i;
+                    if (!pattern.test($(this).val())) {
+                        $('#validEmail').text('Не верный email');
+                        $('#validEmail').show();
+                    }
+                    else {
+                        $('#validEmail').hide();
+                    }
+                }
+            });
+
+            $('#Login').click(function () {
+                // проверка на существования email в бд
+                var email = $('#email').val();
+                $.ajax({
+                    type: 'POST',
+                    url: '/Account/isUserByEmail',
+                    data: { 'email': email },
+                    success: function (data, textstatus) {
+                        if (data == "True") {
+                            $('#validUser').hide();
+                        }
+                        else {
+                            $('#validUser').text('Не верный email');
+                            $('#validUser').show();
+                            event.preventDefault(); 
+                            return false;
+                        }
+                    }
+                });
+            });
+
+            // перед отправкой формы, проверяем есть ли юзер в бд
+            $('#signupform').submit(function (e) {
+                var form = this;
+                //отменяем событие по умолчанию (отправку формы)
+                e.preventDefault();
+                var email = $('#email').val();
+                // ищем пользователя в бд
+                $.ajax({
+                    type: 'POST',
+                    url: '/Account/isUserByEmail',
+                    data: { 'email': email },
+                    success: function (data, textstatus) {
+                        if (data == "True") {
+                            $('#validUser').hide();
+                            form.submit();
+                        }
+                        else {
+                            $('#validUser').text('Пользователь не зарегистрирован');
+                            $('#validUser').show();
+                        }
+                    }
+                });
+
+            });
+        });
+    </script>
+</body>
+
+
+</html>

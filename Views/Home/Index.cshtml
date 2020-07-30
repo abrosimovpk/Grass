@@ -1,0 +1,79 @@
+﻿@{
+    Layout = null;
+}
+
+@* подключение jquery библиотек *@
+<script src="~/scripts/jquery-3.4.1.js"></script>
+<script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
+<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+<script src="~/Scripts/bootstrap.min.js"></script>
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Социальная сеть любителей спаржи</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div>
+                <p class="h1">Приветствуем, @ViewBag.User.Name</p>
+                <p class="btn btn-default">@Ajax.ActionLink("Съесть спаржу", "Send", "Home", new { id = ViewBag.User.Id }, new AjaxOptions { }) </p>
+                <p class="btn btn-default">@Ajax.ActionLink("Выход", "Logout", "Account", new AjaxOptions { })</p>
+                <hr />
+            </div>
+            <div id="scrolList" class="center-block">
+                @Html.Partial("_Send")
+            </div>
+            <p class="btn btn-default" id="More">Еще!</p>
+        </div>
+    </div>
+</body>
+</html>
+<script type="text/javascript">
+    $(function () {
+        /*
+         * page - счетчик показанных частей постов
+         * _inCallback переключатель вызова
+        */
+        var page = 0;
+        var _inCallback = false;
+        function loadItems() {
+            if (page > -1 && !_inCallback) {
+                _inCallback = true;
+                page++;
+                $.ajax({
+                    type: 'GET',
+                    url: '/Home/Index/' + page,
+                    success: function (data, textstatus) {
+                        if (data != '') {
+                            $("#scrolList").append(data);
+                        }
+                        else {
+                            page = -1;
+                        }
+                        _inCallback = false;
+                    }
+                });
+            }
+        }
+
+        /* обработка события скроллинга
+         * window.innerHeight - высота области просмотра
+         * $(window).scrollTop() - высота скролла
+         * $(document).height() - высота всего документа
+        */
+        $(window).scroll(function () {
+            if (window.innerHeight + $(window).scrollTop() == $(document).height()) {
+                loadItems();
+            }
+        });
+        $('#More').click(function () {
+            loadItems();
+        });
+
+
+    });
+</script>
