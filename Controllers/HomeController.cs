@@ -43,7 +43,7 @@ namespace GrassForLess.Controllers
             {
                 return PartialView("_Send", GetItemsPage(page));
             }
-
+            ViewBag.PageId = page;
             return View(GetItemsPage(page));
         }
 
@@ -51,7 +51,7 @@ namespace GrassForLess.Controllers
         // получаем посты для добавления
         private List<Send> GetItemsPage(int page = 1)
         {
-            var itemsToSkip = page * pageSize;
+            int itemsToSkip = page * pageSize;
             IEnumerable<Send> sends = sendContext.Sends;
             ViewBag.Sends = sends;
             return sends.OrderBy(u => u.Id).Skip(itemsToSkip).
@@ -60,12 +60,12 @@ namespace GrassForLess.Controllers
 
         [HttpGet]
         [Authorize]
-        public ContentResult Send(int id)
+        public bool Send(int id)
         {
             ViewBag.UserId = id;
             
             IEnumerable<Send> sends = sendContext.Sends;
-
+            bool response = false;
             // проверка ел ли юзер до этого спаржу
             Send newSend = null;
             newSend = sendContext.Sends.Where(u => u.UserId == id).FirstOrDefault();
@@ -88,8 +88,11 @@ namespace GrassForLess.Controllers
             //обновление бд и viewBag
             sendContext.SaveChanges();
             ViewBag.Sends = sends;
-            string html = "< div class=\"container\"> <div class=\"row\"><p>Спасибо," + newSend.UserName + ", что съели спаржу!</p><a class=\"btn btn-default\"  href=../Index>Вернуться</a></div></div>";
-            return base.Content(html, "text/html");
+            response = true;
+            //string html = "< div class=\"container\"> <div class=\"row\"><p>Спасибо," + newSend.UserName + ", что съели спаржу!</p><a class=\"btn btn-default\"  href=../Index>Вернуться</a></div></div>";
+            //return base.Content(html, "text/html");
+
+            return response;
 
         }
     }

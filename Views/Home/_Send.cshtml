@@ -1,17 +1,10 @@
 ﻿@model IEnumerable<GrassForLess.Models.Send>
 
-@* подключение jquery библиотек *@
-<script src="~/scripts/jquery-3.4.1.js"></script>
-<script src="~/Scripts/jquery.validate.unobtrusive.js"></script>
-<link href="~/Content/bootstrap.min.css" rel="stylesheet" />
-<script src="~/Scripts/bootstrap.min.js"></script>
-
 @foreach (var item in Model)
 {
-    <div class="card">
+    <div class="card" id="card">
         <div class="card-body">
             <p class="card-text">@item.Text</p>
         </div>
-
     </div>
 }

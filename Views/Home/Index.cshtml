@@ -20,7 +20,8 @@
         <div class="row">
             <div>
                 <p class="h1">Приветствуем, @ViewBag.User.Name</p>
-                <p class="btn btn-default">@Ajax.ActionLink("Съесть спаржу", "Send", "Home", new { id = ViewBag.User.Id }, new AjaxOptions { }) </p>
+                @*<p class="btn btn-default" id="send">@Ajax.ActionLink("Съесть спаржу", "Send", "Home", new { id = ViewBag.User.Id }, new AjaxOptions { }) </p>*@
+                <p class="btn btn-default" id="send"><a></a>Съесть спаржу </a></p>
                 <p class="btn btn-default">@Ajax.ActionLink("Выход", "Logout", "Account", new AjaxOptions { })</p>
                 <hr />
             </div>
@@ -38,7 +39,7 @@
          * page - счетчик показанных частей постов
          * _inCallback переключатель вызова
         */
-        var page = 0;
+        var page = @ViewBag.PageId;
         var _inCallback = false;
         function loadItems() {
             if (page > -1 && !_inCallback) {
@@ -74,6 +75,31 @@
             loadItems();
         });
 
+
+        $('#send').click(function () {
+            $.ajax({
+                type: 'GET',
+                url: '/Home/Send/' + @ViewBag.User.Id,
+                success: function (data, textstatus) {
+                    if (data = "True") {
+                        alert("Спасибо, что съели спаржу");
+                    }
+                    //очистка содержимого
+                    document.getElementById("scrolList").innerHTML = "";
+                    page = 0;
+
+                    $.ajax({
+                        type: 'get',
+                        url: '/home/index/'+ page,
+                        success: function (data, textstatus) {
+                            if (data != '') {
+                                $("#scrolList").append(data);
+                            }
+                        }
+                    });
+                }
+            });
+        });
 
     });
 </script>
